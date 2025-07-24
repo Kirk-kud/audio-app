@@ -3,3 +3,4 @@ tornado~=6.5.1
 pydub
 fastapi
 uvicorn
+python-multipart
