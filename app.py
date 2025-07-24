@@ -15,6 +15,7 @@ app.mount("/static", StaticFiles(directory="static"), name="static")
 
 origins = [
     "http://localhost:5173",  # local React.js server
+    "https://audio-app-phi.vercel.app/" # Vercel hosted frontend
 ]
 
 app.add_middleware(
