@@ -14,13 +14,16 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 origins = [
-    "http://localhost:5173",  # local React.js server
     "https://audio-app-phi.vercel.app" # Vercel hosted frontend
+    # "http://localhost:5173" local React.js server
 ]
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=origins
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 @app.get("/")
