@@ -9,6 +9,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from audio_operations import loop_audio
 from fastapi.responses import FileResponse, StreamingResponse
 from pydub import AudioSegment
+
+from dotenv import load_dotenv
+
+
 app = FastAPI()
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
