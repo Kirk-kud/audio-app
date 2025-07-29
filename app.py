@@ -1,13 +1,11 @@
 import shutil
 import os
 import sys
-from http.client import HTTPException
 
-from fastapi import FastAPI, File, UploadFile
+from fastapi import FastAPI, File, UploadFile, HTTPException
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
 from audio_operations import loop_audio
-from fastapi.responses import FileResponse, StreamingResponse
 from pydub import AudioSegment
 
 from dotenv import load_dotenv
@@ -18,8 +16,8 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
 origins = [
-    "https://audio-app-phi.vercel.app" # Vercel hosted frontend
-    # "http://localhost:5173" local React.js server
+    "https://audio-app-phi.vercel.app", # Vercel hosted frontend
+    "http://localhost:5173" # local React.js server
 ]
 
 app.add_middleware(
@@ -58,12 +56,14 @@ output_path = ""
 @app.post("/convert_audio")
 async def convert_audio(hours: int, file: UploadFile):
     # Clearing the old files before beginning a new conversion
-    await clear_old_files()
     try:
         global input_path, output_path
 
         input_path = f"static/temp_{file.filename}"
-        output_path = f"static/looped_{file.filename}"
+        output_path = f"{file.filename}"
+        # Checking the file name
+        await generate_file_name(hours)
+        print(f"Output Path: {output_path}", file=sys.stderr)
 
         with open(input_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
@@ -82,12 +82,17 @@ async def convert_audio(hours: int, file: UploadFile):
             Params={'Bucket': bucket_name, 'Key': output_path},
             ExpiresIn=3600
         )
-
+        # Clearing the files after the upload is complete
+        await clear_old_files()
         return url
-        # return StreamingResponse(output_path, media_type="audio/mpeg")
     except Exception as e:
         print(str(e), file=sys.stderr)
-        raise Exception(str(e))
+        raise HTTPException(status_code=500, detail="Audio could not be looped")
+
+async def generate_file_name(hours: int):
+    global output_path
+    o = output_path.split(".")
+    output_path = f"{o[0]}_looped_{hours}h.{o[-1]}"
 
 async def clear_old_files():
     try:
