@@ -30,6 +30,7 @@ app.add_middleware(
 
 load_dotenv()
 ENDPOINT_URL = os.getenv("ENDPOINT_URL")
+ENDPOINT_ID = os.getenv("ENDPOINT_ID")
 ENDPOINT_PASSWORD = os.getenv("ENDPOINT_PASSWORD")
 ENDPOINT_REGION = os.getenv("ENDPOINT_REGION")
 bucket_name = os.getenv("BUCKET_NAME")
@@ -37,7 +38,7 @@ bucket_name = os.getenv("BUCKET_NAME")
 s3 = boto3.client(
     's3',
     endpoint_url=ENDPOINT_URL,
-    aws_access_key_id='minio',
+    aws_access_key_id=ENDPOINT_ID,
     aws_secret_access_key=ENDPOINT_PASSWORD,
     region_name=ENDPOINT_REGION,
 )
@@ -63,7 +64,7 @@ async def convert_audio(hours: int, file: UploadFile):
         output_path = f"{file.filename}"
         # Checking the file name
         await generate_file_name(hours)
-        print(f"Output Path: {output_path}", file=sys.stderr)
+        # print(f"Output Path: {output_path}", file=sys.stderr)
 
         with open(input_path, "wb") as buffer:
             shutil.copyfileobj(file.file, buffer)
