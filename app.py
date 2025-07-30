@@ -73,9 +73,10 @@ async def convert_audio(hours: int, file: UploadFile):
         looped_audio, file_type, export_format = loop_audio(audio_file, file.filename, hours)
 
         # Configuring app to export to object store
-        looped_audio.export(output_path, format="mp3") # input_path[-3:]
+        #looped_audio.export(output_path, format="mp3") # input_path[-3:]
 
-        s3.upload_file(output_path, bucket_name, output_path)
+        # Uploading the AudioSegment object
+        s3.upload_file(looped_audio, bucket_name, output_path)
 
         # Generating a url
         url = s3.generate_presigned_url(
